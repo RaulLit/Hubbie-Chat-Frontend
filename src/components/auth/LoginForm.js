@@ -27,9 +27,8 @@ export const LoginForm = () => {
 
   const handleLogin = async (data) => {
     const { email, password } = data;
-    login(email, password)
-      .then(() => navigate("/home"))
-      .catch((e) => console.log(e));
+    await login(email, password);
+    navigate("/home");
   };
 
   return (

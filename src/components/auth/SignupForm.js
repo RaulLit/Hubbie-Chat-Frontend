@@ -31,9 +31,8 @@ export const SignupForm = () => {
 
   const handleSignup = async (data) => {
     const { email, newPassword: password } = data;
-    signup(email, password)
-      .then(() => navigate("/home"))
-      .catch((e) => console.log(e));
+    await signup(email, password);
+    navigate("/home");
   };
 
   return (
