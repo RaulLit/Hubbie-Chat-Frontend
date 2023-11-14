@@ -12,11 +12,12 @@ export const SignupForm = () => {
 
   // Schema
   const schema = yup.object().shape({
+    name: yup.string().min(2).required(),
     email: yup.string().email("Invalid Email!").required("Email is required!"),
-    newPassword: yup.string().min(4).max(20).required(),
+    password: yup.string().min(4).max(20).required(),
     confirmPassword: yup
       .string()
-      .oneOf([yup.ref("newPassword"), null], "Password don't match!")
+      .oneOf([yup.ref("password"), null], "Password don't match!")
       .required(),
   });
 
@@ -29,9 +30,8 @@ export const SignupForm = () => {
     resolver: yupResolver(schema),
   });
 
-  const handleSignup = async (data) => {
-    const { email, newPassword: password } = data;
-    await signup(email, password);
+  const handleSignup = async ({ name, email, password }) => {
+    await signup({ name, email, password });
     navigate("/home");
   };
 
@@ -44,6 +44,17 @@ export const SignupForm = () => {
     >
       <Typography variant="h4">Sign up</Typography>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(handleSignup)}>
+        <TextField
+          margin="normal"
+          label="Name"
+          variant="outlined"
+          color="secondary"
+          fullWidth
+          required
+          error={errors.name ? true : false}
+          helperText={errors.name?.message}
+          {...register("name")}
+        />
         <TextField
           margin="normal"
           label="Email"
@@ -63,9 +74,9 @@ export const SignupForm = () => {
           type="password"
           fullWidth
           required
-          error={errors.newPassword ? true : false}
-          helperText={errors.newPassword?.message}
-          {...register("newPassword")}
+          error={errors.password ? true : false}
+          helperText={errors.password?.message}
+          {...register("password")}
         />
 
         <TextField
