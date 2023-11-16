@@ -1,25 +1,27 @@
-import { Box, Container, Divider, Typography } from "@mui/material";
+import { Box, Container, Divider } from "@mui/material";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
-import { Contacts } from "./Contacts";
+import { SideDrawer } from "./SideDrawer";
+import { MyChats } from "./MyChats";
+import { ChatBox } from "./ChatBox";
 
 export const Home = () => {
   const { user } = useContext(AuthContext);
   return (
-    <Box
-      sx={{
-        width: { sm: "100%", lg: "90%" },
-        height: { sm: "100vh", lg: "90vh" },
-        position: "absolute",
-        top: { sm: 0, lg: "5vh" },
-        left: { sm: 0, lg: "5%" },
-        background: (t) => t.palette.background.paper,
-        display: "flex",
-      }}
-    >
-      <Contacts />
-      <Divider orientation="vertical" variant="fullWidth" flexItem color="white" />
-      <Box>HI</Box>
+    <Box sx={{ width: "100%" }}>
+      {user && <SideDrawer />}
+      <Box
+        sx={{
+          width: "100%",
+          height: "90vh",
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "1rem",
+        }}
+      >
+        {user && <MyChats />}
+        {user && <ChatBox />}
+      </Box>
     </Box>
   );
 };
