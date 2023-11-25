@@ -1,4 +1,5 @@
 import { AuthContextProvider } from "./contexts/AuthContext";
+import { ChatContextProvider } from "./contexts/ChatContext";
 import { ThemeContextProvider } from "./contexts/ThemeContext";
 import { Router } from "./Router";
 
@@ -7,7 +8,9 @@ function App() {
     <div className="app">
       <ThemeContextProvider>
         <AuthContextProvider>
-          <Router />
+          <ChatContextProvider>
+            <Router />
+          </ChatContextProvider>
         </AuthContextProvider>
       </ThemeContextProvider>
     </div>
