@@ -5,7 +5,7 @@ export const useAlert = () => {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState({});
   const handleClose = () => setOpen(false);
-  const handleOpen = () => setOpen(true);
+  const showAlert = () => setOpen(true);
   const setAlert = (obj) => setSettings(obj);
   const alertElem = (
     <Snackbar open={open} {...settings.snackbar} onClose={handleClose}>
@@ -14,5 +14,5 @@ export const useAlert = () => {
       </Alert>
     </Snackbar>
   );
-  return { setAlert, alertElem, handleOpen, handleClose };
+  return { setAlert, alertElem, showAlert, handleClose };
 };
