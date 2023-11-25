@@ -18,16 +18,21 @@ import { useLogout } from "../../hooks/useLogout";
 import { ProfileModel } from "./ProfileModel";
 import { useAlert } from "../../hooks/useAlert";
 import { ChatLoading } from "./ChatLoading";
+import { UserCard } from "./UserCard";
+import { ChatContext } from "../../contexts/ChatContext";
+import { useSearch } from "../../hooks/useSearch";
 
 export const SideDrawer = () => {
   const { user } = useContext(AuthContext);
   const { logout } = useLogout();
-  const { setAlert, alertElem, handleOpen } = useAlert();
+  const { setAlert, alertElem, showAlert } = useAlert();
+  const { setSelectedChat, notification, setNotification, chats, setChats } =
+    useContext(ChatContext);
 
   // Search
-  const [search, setSearch] = useState();
-  const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState();
+  const { isLoading, SearchUser, error } = useSearch();
+  const [search, setSearch] = useState("");
+  const [users, setUsers] = useState(null);
   const handleSearch = async () => {
     if (!search) {
       // Alert
@@ -39,25 +44,13 @@ export const SideDrawer = () => {
         },
         snackbar: {
           autoHideDuration: 6000,
-          anchorOrigin: {
-            vertical: "buttom",
-            horizontal: "left",
-          },
         },
       });
-      handleOpen();
+      showAlert(); // shows the popup alert
     }
-    try {
-      setLoading(true);
-      const fetched_users = await fetch(
-        `http://localhost:4000/api/user/allUser?search=${search}`,
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
-      );
-      setUsers(fetched_users);
-      setLoading(false);
-    } catch (err) {
+    // Search users
+    setUsers(await SearchUser(search));
+    if (error) {
       // Alert
       setAlert({
         message: "Failed to load search results",
@@ -67,18 +60,46 @@ export const SideDrawer = () => {
         },
         snackbar: {
           autoHideDuration: 6000,
-          anchorOrigin: {
-            vertical: "buttom",
-            horizontal: "left",
-          },
         },
       });
-      handleOpen();
-      setLoading(false);
+      showAlert();
     }
   };
 
-  const accessChat = (id) => {};
+  // Access Chat
+  const accessChat = async (id) => {
+    try {
+      // setLoadingChat(true);
+
+      const data = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/chat/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ userId: id }),
+      });
+
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+      setSelectedChat(data);
+      // setLoadingChat(false);
+      handleDrawerClose();
+    } catch (error) {
+      console.log(error);
+      // Alert
+      setAlert({
+        message: "Error Fetching the chat",
+        alert: {
+          variant: "filled",
+          severity: "error",
+        },
+        snackbar: {
+          autoHideDuration: 6000,
+        },
+      });
+      showAlert();
+    }
+  };
 
   // Profile Menu
   const [profileAnchor, setProfileAnchor] = useState(null);
@@ -197,12 +218,20 @@ export const SideDrawer = () => {
           </Box>
           {alertElem}
         </Box>
-        {loading ? (
+        {isLoading ? (
           <ChatLoading />
         ) : (
-          users?.map((u) => (
-            <UserCard key={u._id} user={u} handleFunc={() => accessChat(u._id)} />
-          ))
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width="100%"
+          >
+            {users?.map((u) => (
+              <UserCard key={u._id} user={u} handleFunc={() => accessChat(u._id)} />
+            ))}
+          </Box>
         )}
       </Drawer>
     </>
