@@ -1,4 +1,4 @@
-import { Box, Container, Divider } from "@mui/material";
+import { Box } from "@mui/material";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { SideDrawer } from "./SideDrawer";

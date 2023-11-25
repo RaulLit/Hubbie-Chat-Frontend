@@ -23,7 +23,7 @@ export const Intro = () => {
           Register to start now!
         </Typography>
         <Button
-          variant={mode == "dark" ? "outlined" : "contained"}
+          variant={mode === "dark" ? "outlined" : "contained"}
           onClick={() => navigate("/auth")}
           sx={{}}
         >
