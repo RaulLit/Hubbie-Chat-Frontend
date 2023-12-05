@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLogout } from "./useLogout";
 
-export const useFetch = (url, options) => {
+export const useFetch = (options) => {
   const method = options.method || "GET";
   const headers = options.headers || { "Content-Type": "application/json" };
   const body = options.body || undefined;
@@ -11,7 +11,7 @@ export const useFetch = (url, options) => {
   const [error, setError] = useState(null);
   const { logout } = useLogout();
 
-  const fetchData = async () => {
+  const fetchData = async (url) => {
     try {
       setLoading(true);
       const response = await fetch(url, {
