@@ -67,7 +67,7 @@ export const SideDrawer = () => {
   };
 
   // Access Chat
-  const accessChat = async (id) => {
+  const accessChat = async (userId) => {
     try {
       // setLoadingChat(true);
 
@@ -77,7 +77,7 @@ export const SideDrawer = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ userId: id }),
+        body: JSON.stringify({ userId }),
       });
 
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
@@ -85,7 +85,6 @@ export const SideDrawer = () => {
       // setLoadingChat(false);
       handleDrawerClose();
     } catch (error) {
-      console.log(error);
       // Alert
       setAlert({
         message: "Error Fetching the chat",
