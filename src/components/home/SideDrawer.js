@@ -26,6 +26,7 @@ export const SideDrawer = () => {
   const { user } = useContext(AuthContext);
   const { logout } = useLogout();
   const { setAlert, alertElem, showAlert } = useAlert();
+  // eslint-disable-next-line
   const { setSelectedChat, notification, setNotification, chats, setChats } =
     useContext(ChatContext);
 
@@ -139,7 +140,7 @@ export const SideDrawer = () => {
           </Button>
         </Tooltip>
 
-        <Typography variant="h5" color="primary">
+        <Typography variant="h5" color="primary" sx={{ userSelect: "none" }}>
           Hubbie Chat
         </Typography>
 

@@ -40,7 +40,6 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
   const [groupName, setGroupName] = useState();
   const [groupUsers, setGroupUsers] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
 
   const { alertElem, setAlert, showAlert } = useAlert();
 

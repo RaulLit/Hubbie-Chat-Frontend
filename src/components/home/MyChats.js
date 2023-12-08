@@ -7,7 +7,7 @@ import { ChatLoading } from "./ChatLoading";
 import { getSender } from "../../util/Utilities";
 import { NewGroupModel } from "./NewGroupModel";
 
-export const MyChats = () => {
+export const MyChats = ({ fetchAgain }) => {
   const { user } = useContext(AuthContext);
   const { setAlert, alertElem, showAlert } = useAlert();
   const { selectedChat, setSelectedChat, chats, setChats } = useContext(ChatContext);
@@ -42,7 +42,8 @@ export const MyChats = () => {
 
   useEffect(() => {
     getChats();
-  }, []);
+    // eslint-disable-next-line
+  }, [fetchAgain]);
 
   return (
     <Box
@@ -50,7 +51,7 @@ export const MyChats = () => {
         display: { xs: selectedChat ? "none" : "flex", md: "flex" },
         flexDirection: "column",
         alignItems: "center",
-        p: 2,
+        p: 1.5,
         background: (t) => t.palette.background.paper,
         width: { sm: "100%", md: "40%" },
         borderRadius: "1rem",
