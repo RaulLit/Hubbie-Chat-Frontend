@@ -1,92 +1,56 @@
-import { Box, IconButton, Typography } from "@mui/material";
-import { useContext, useState } from "react";
+import { Avatar, Box, Chip, Tooltip } from "@mui/material";
+import { useContext } from "react";
 import { ChatContext } from "../../contexts/ChatContext";
-import { ArrowBack } from "@mui/icons-material";
-import { UpdateGroupModel } from "./UpdateGroupModel";
-import { getSender, getSenderObj } from "../../util/Utilities";
 import { AuthContext } from "../../contexts/AuthContext";
-import { ProfileModel } from "./ProfileModel";
+import ScrollableFeed from "react-scrollable-feed";
+import { isLastMessage, isSameSender } from "../../util/Utilities";
 
-export const Chat = ({ fetchAgain, setFetchAgain }) => {
+export const Chat = ({ messages }) => {
   const { user } = useContext(AuthContext);
   const { selectedChat, setSelectedChat } = useContext(ChatContext);
 
-  // Update Group Chat Model
-  const [openModel, setOpenModel] = useState(false);
-  const handleOpenModel = () => setOpenModel(true);
-  const handleCloseModel = () => setOpenModel(false);
-
-  // Profile Model
-  const [openProfileModel, setOpenProfileModel] = useState(false);
-  const handleOpenProfileModel = () => setOpenProfileModel(true);
-  const handleCloseProfileModel = () => setOpenProfileModel(false);
-
   return (
-    <>
-      {selectedChat ? (
-        <>
-          <Typography
-            sx={{
-              typography: { xs: "h6", sm: "h5" },
-              padding: 1,
-              width: "100%",
-              display: "flex",
-              justifyContent: { sm: "space-between" },
-              alignItems: "center",
-            }}
-          >
-            <IconButton
-              sx={{ display: { sm: "flex", md: "none" } }}
-              onClick={() => setSelectedChat("")}
-            >
-              <ArrowBack />
-            </IconButton>
-            {!selectedChat.isGroupChat ? (
-              <>
-                {getSender(user, selectedChat.users)}
-                <ProfileModel
-                  open={openProfileModel}
-                  handleOpen={handleOpenProfileModel}
-                  handleClose={handleCloseProfileModel}
-                  user={getSenderObj(user, selectedChat.users)}
-                />
-              </>
-            ) : (
-              <>
-                {selectedChat.chatName}
-                <UpdateGroupModel
-                  open={openModel}
-                  handleOpen={handleOpenModel}
-                  handleClose={handleCloseModel}
-                  fetchAgain={fetchAgain}
-                  setFetchAgain={setFetchAgain}
-                ></UpdateGroupModel>
-              </>
-            )}
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-end",
-              padding: 1,
-              width: "100%",
-              height: "100%",
-              background: (t) => t.palette.background.default,
-              borderRadius: "1rem",
-              overflow: "hidden",
-            }}
-          >
-            {/* Messages */}
-          </Box>
-        </>
-      ) : (
-        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-          <Typography variant="h4" color="primary">
-            Click on a chat to start texting
-          </Typography>
-        </Box>
-      )}
-    </>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "scroll",
+        scrollbarWidth: "none",
+      }}
+    >
+      <ScrollableFeed>
+        {messages &&
+          messages.map((m, i) => (
+            <Box key={m._id} sx={{ display: "flex", alignItems: "center" }}>
+              {(isSameSender(messages, m, i, user._id) ||
+                isLastMessage(messages, i, user._id)) && (
+                <Tooltip title={m.sender.name} placement="bottom-start" arrow>
+                  <Avatar sx={{ width: "1.5rem", height: "1.5rem" }} alt={m.sender.name}>
+                    {m.sender.name[0]}
+                  </Avatar>
+                </Tooltip>
+              )}
+              <Chip
+                label={m.content}
+                sx={{
+                  background:
+                    m.sender._id === user._id
+                      ? (t) => t.palette.primary.main
+                      : (t) => t.palette.secondary.main,
+                  maxWidth: "70%",
+                  margin: "0.1rem 0",
+                  marginLeft:
+                    m.sender._id === user._id
+                      ? "auto"
+                      : isSameSender(messages, m, i, user._id) ||
+                        isLastMessage(messages, i, user._id)
+                      ? "0.1rem"
+                      : "1.5rem",
+                }}
+              />
+            </Box>
+          ))}
+      </ScrollableFeed>
+    </Box>
   );
 };
