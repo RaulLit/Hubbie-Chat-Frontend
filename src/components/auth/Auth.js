@@ -1,8 +1,9 @@
-import { Box, Container, Divider, Typography } from "@mui/material";
+import { Box, Container, Divider, Typography, useMediaQuery } from "@mui/material";
 import { SignupForm } from "./SignupForm";
 import { LoginForm } from "./LoginForm";
 
 export const Auth = () => {
+  const isSmallScreen = useMediaQuery("(max-width: 600px)");
   return (
     <Container
       maxWidth="md"
@@ -15,7 +16,11 @@ export const Auth = () => {
       }}
     >
       <Box p={2}>
-        <Typography variant="h3" color="primary">
+        <Typography
+          variant="h3"
+          sx={{ typography: { xs: "h4", sm: "h3" } }}
+          color="primary"
+        >
           Hubbie Chat
         </Typography>
       </Box>
@@ -24,10 +29,17 @@ export const Auth = () => {
           display: "flex",
           justifyContent: "space-around",
           alignItems: "center",
+          flexDirection: { xs: "column", sm: "row" },
+          margin: { xs: "0 1.5rem", sm: 0 },
         }}
       >
         <LoginForm />
-        <Divider orientation="vertical" variant="middle" flexItem color="black" />
+        <Divider
+          orientation={isSmallScreen ? "horizontal" : "vertical"}
+          variant="middle"
+          flexItem
+          color="black"
+        />
         <SignupForm />
       </Box>
     </Container>

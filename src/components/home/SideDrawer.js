@@ -131,21 +131,34 @@ export const SideDrawer = () => {
         }}
       >
         <Tooltip title="Search users to chat" placement="bottom-end" arrow>
-          <Button variant="filledTonal" startIcon={<Search />} onClick={handleDrawerOpen}>
+          <Button
+            variant="filledTonal"
+            startIcon={<Search />}
+            onClick={handleDrawerOpen}
+            sx={{
+              "@media screen and (max-width: 375px)": {
+                padding: "0.2rem",
+                minWidth: 20,
+              },
+            }}
+          >
             <Typography
-              sx={{ display: { sm: "none", md: "flex" }, textTransform: "none" }}
+              sx={{ display: { xs: "none", sm: "flex" }, textTransform: "none" }}
             >
               Search User
             </Typography>
           </Button>
         </Tooltip>
 
-        <Typography variant="h5" color="primary" sx={{ userSelect: "none" }}>
+        <Typography
+          color="primary"
+          sx={{ userSelect: "none", typography: { xs: "h6", sm: "h5" } }}
+        >
           Hubbie Chat
         </Typography>
 
         <Box>
-          <IconButton size="large">
+          <IconButton size="large" sx={{ padding: { xs: "0.2rem", sm: "0.5rem" } }}>
             <Notifications />
           </IconButton>
           {/* <Menu
@@ -169,6 +182,7 @@ export const SideDrawer = () => {
             <IconButton
               onClick={(e) => setProfileAnchor(e.currentTarget)}
               color="inherit"
+              sx={{ padding: { xs: "0.2rem", sm: "0.5rem" } }}
             >
               <Avatar alt={user.name} />
             </IconButton>
@@ -196,7 +210,12 @@ export const SideDrawer = () => {
         </Box>
       </Box>
       <Drawer anchor="left" open={drawerAnchor} onClose={handleDrawerClose}>
-        <Box sx={{ width: "25rem" }}>
+        <Box
+          sx={{
+            width: { xs: "20rem", sm: "25rem" },
+            "@media screen and (max-width: 365px)": { width: "90vw" },
+          }}
+        >
           <Typography variant="h5" width="100%" p={2} align="center">
             Search User
           </Typography>
@@ -212,7 +231,8 @@ export const SideDrawer = () => {
               placeholder="Search by name or email"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              sx={{ width: "60%" }}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch}
+              sx={{ width: { xs: "90%", sm: "60%" } }}
             />
             <Button onClick={handleSearch}>Go</Button>
           </Box>

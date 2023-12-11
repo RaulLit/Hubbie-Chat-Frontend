@@ -11,6 +11,7 @@ import {
   Modal,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useAlert } from "../../hooks/useAlert";
 import { useContext, useState } from "react";
@@ -24,9 +25,8 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "30rem",
+  width: { xs: "90%", sm: "30rem" },
   bgcolor: "background.paper",
-  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
@@ -35,6 +35,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
   const { user } = useContext(AuthContext);
   const { chats, setChats } = useContext(ChatContext);
   const { isLoading, SearchUser, error } = useSearch();
+  const isSmallScreen = useMediaQuery("(max-width: 360px)");
 
   // new group form
   const [groupName, setGroupName] = useState();
@@ -154,22 +155,35 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
           <Typography variant="h6" component="h2" align="center">
-            Create New Group Chat
+            {isSmallScreen ? "Create New Group" : "Create new Group Chat"}
           </Typography>
           <Divider sx={{ m: "1rem 0" }} />
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <FormControl>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <FormControl
+              fullWidth
+              sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+            >
               <Input
                 placeholder="Group Name"
                 onChange={(e) => setGroupName(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ width: "70%", mb: 2 }}
               />
             </FormControl>
-            <FormControl>
+            <FormControl
+              fullWidth
+              sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+            >
               <Input
                 placeholder="Add user"
                 onChange={(e) => handleSearch(e.target.value)}
-                sx={{ mb: 1 }}
+                sx={{ width: "70%", mb: 1 }}
               />
             </FormControl>
             {/* Show selected users */}

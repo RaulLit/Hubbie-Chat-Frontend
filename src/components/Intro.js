@@ -7,32 +7,37 @@ export const Intro = () => {
   const { toggleTheme, mode } = useContext(ThemeContext);
   const navigate = useNavigate();
   return (
-    <Box sx={{ height: "100%", width: "100%", marginTop: 5, textAlign: "center" }}>
-      <Box
-        sx={{
-          height: "60vh",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
+    <Box
+      sx={{
+        marginTop: 5,
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        textAlign: "center",
+      }}
+    >
+      <Typography
+        marginLeft={2}
+        marginRight={2}
+        sx={{ typography: { xs: "h4", sm: "h3" } }}
       >
-        <Typography variant="h3">Text with your friends anytime you want!!</Typography>
-        <Typography variant="h4" sx={{ margin: "1rem 0" }}>
-          Register to start now!
-        </Typography>
-        <Button
-          variant={mode === "dark" ? "outlined" : "contained"}
-          onClick={() => navigate("/auth")}
-          sx={{}}
-        >
-          Get Started
-        </Button>
-        <Box sx={{ marginTop: "5rem" }}>
-          <Typography>What to change the theme?</Typography>
-          <Switch checked={mode === "dark" ? true : false} onChange={toggleTheme} />
-        </Box>
+        Text with your friends anytime you want!!
+      </Typography>
+      <Typography sx={{ margin: "1rem 0", typography: { xs: "h5", sm: "h4" } }}>
+        Register to start now!
+      </Typography>
+      <Button
+        variant={mode === "dark" ? "outlined" : "contained"}
+        onClick={() => navigate("/auth")}
+        sx={{}}
+      >
+        Get Started
+      </Button>
+      <Box sx={{ marginTop: { xs: "3rem", sm: "5rem" } }}>
+        <Typography>What to change the theme?</Typography>
+        <Switch checked={mode === "dark" ? true : false} onChange={toggleTheme} />
       </Box>
     </Box>
   );
