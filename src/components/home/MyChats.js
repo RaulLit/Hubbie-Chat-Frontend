@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { ChatContext } from "../../contexts/ChatContext";
@@ -16,6 +16,7 @@ export const MyChats = ({ fetchAgain }) => {
   const [openModel, setOpenModel] = useState(false);
   const handleOpenModel = () => setOpenModel(true);
   const handleCloseModel = () => setOpenModel(false);
+  const isScreenSmall = useMediaQuery("(max-width: 425px)");
 
   const getChats = async () => {
     try {
@@ -53,7 +54,7 @@ export const MyChats = ({ fetchAgain }) => {
         alignItems: "center",
         p: 1.5,
         background: (t) => t.palette.background.paper,
-        width: { sm: "100%", md: "40%" },
+        width: { xs: "100%", md: "40%" },
         borderRadius: "1rem",
       }}
     >
@@ -66,14 +67,14 @@ export const MyChats = ({ fetchAgain }) => {
           alignItems: "center",
         }}
       >
-        <Typography variant="h5">My Chats</Typography>
+        <Typography sx={{ typography: { xs: "h6", sm: "h5" } }}>My Chats</Typography>
         <NewGroupModel
           open={openModel}
           handleOpen={handleOpenModel}
           handleClose={handleCloseModel}
         >
           <Button onClick={handleOpenModel} sx={{ textTransform: "none" }}>
-            New Group Chat
+            {isScreenSmall ? "New Group" : "New Group Chat"}
           </Button>
         </NewGroupModel>
       </Box>

@@ -25,11 +25,10 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "30rem",
+  width: { xs: "90%", sm: "30rem" },
   bgcolor: "background.paper",
-  border: "2px solid #000",
   boxShadow: 24,
-  p: 4,
+  p: { xs: 2, sm: 4 },
 };
 
 export const UpdateGroupModel = ({
@@ -305,7 +304,7 @@ export const UpdateGroupModel = ({
           </Typography>
           <Divider sx={{ m: "1rem 0" }} />
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Stack direction="row" spacing={1} position="relative">
+            <Stack direction="row" spacing={1} position="relative" flexWrap={"wrap"}>
               {!removeUserLoading &&
                 selectedChat.users.map((user) => (
                   <Chip
@@ -320,12 +319,20 @@ export const UpdateGroupModel = ({
               {/* Spinner */}
               {removeUserLoading && <CircularProgress size="1.5rem" />}
             </Stack>
-            <FormControl sx={{ margin: "1rem 0", width: "15rem" }}>
+            <FormControl
+              fullWidth
+              sx={{
+                margin: "1rem 0",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Input
                 placeholder="Group Name"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ width: "70%", mb: 2 }}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
@@ -346,11 +353,14 @@ export const UpdateGroupModel = ({
                 }
               />
             </FormControl>
-            <FormControl sx={{ width: "15rem" }}>
+            <FormControl
+              fullWidth
+              sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+            >
               <Input
                 placeholder="Add user"
                 onChange={(e) => handleSearch(e.target.value)}
-                sx={{ mb: 1 }}
+                sx={{ width: "70%", mb: 1 }}
               />
             </FormControl>
 

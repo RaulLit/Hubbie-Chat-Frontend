@@ -114,9 +114,9 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
         alignItems: "center",
         p: 1.5,
         background: (t) => t.palette.background.paper,
-        width: { sm: "100%", md: "60%" },
+        width: { xs: "100%", md: "60%" },
         borderRadius: "1rem",
-        marginLeft: 0.5,
+        marginLeft: { xs: 0, md: 0.5 },
       }}
     >
       {selectedChat ? (
@@ -128,7 +128,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
               padding: 1,
               width: "100%",
               display: "flex",
-              justifyContent: { sm: "space-between" },
+              justifyContent: "space-between",
               alignItems: "center",
             }}
           >
@@ -201,7 +201,15 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
         </>
       ) : (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-          <Typography variant="h4" color="primary">
+          <Typography
+            variant="h4"
+            color="primary"
+            sx={{
+              "@media screen and (max-width: 975px)": {
+                typography: "h5",
+              },
+            }}
+          >
             Click on a chat to start texting
           </Typography>
         </Box>

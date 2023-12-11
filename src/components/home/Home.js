@@ -17,7 +17,7 @@ export const Home = () => {
           height: "90vh",
           display: "flex",
           justifyContent: "space-between",
-          padding: "1rem",
+          padding: { xs: 0, sm: "1rem" },
         }}
       >
         {user && <MyChats fetchAgain={fetchAgain} />}
