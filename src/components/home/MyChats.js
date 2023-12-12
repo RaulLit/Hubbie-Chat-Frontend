@@ -25,6 +25,8 @@ export const MyChats = ({ fetchAgain }) => {
       });
       const fetched_chats = await response.json();
       setChats(fetched_chats);
+      // local storage
+      localStorage.setItem("chats", JSON.stringify(fetched_chats));
     } catch (err) {
       // Alert
       setAlert({
