@@ -3,12 +3,10 @@ import { Button, Container, TextField, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
 import { useSignup } from "../../hooks/useSignup";
 
 export const SignupForm = () => {
   const { signup, error, isLoading } = useSignup();
-  const navigate = useNavigate();
 
   // Schema
   const schema = yup.object().shape({
@@ -32,7 +30,6 @@ export const SignupForm = () => {
 
   const handleSignup = async ({ name, email, password }) => {
     await signup({ name, email, password });
-    navigate("/home");
   };
 
   return (

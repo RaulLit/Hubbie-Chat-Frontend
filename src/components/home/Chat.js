@@ -1,13 +1,11 @@
 import { Avatar, Box, Chip, Tooltip } from "@mui/material";
 import { useContext } from "react";
-import { ChatContext } from "../../contexts/ChatContext";
 import { AuthContext } from "../../contexts/AuthContext";
 import ScrollableFeed from "react-scrollable-feed";
 import { isLastMessage, isSameSender } from "../../util/Utilities";
 
 export const Chat = ({ messages }) => {
   const { user } = useContext(AuthContext);
-  const { selectedChat, setSelectedChat } = useContext(ChatContext);
 
   return (
     <Box
@@ -15,8 +13,8 @@ export const Chat = ({ messages }) => {
         display: "flex",
         flexDirection: "column",
         overflowY: "scroll",
-        scrollbarWidth: "none",
       }}
+      className="noScrollbar"
     >
       <ScrollableFeed>
         {messages &&

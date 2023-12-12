@@ -7,4 +7,9 @@
 
 body {
   position: relative;
+  overflow: hidden;
+}
+
+.noScrollbar::-webkit-scrollbar {
+  width: 0;
 }
