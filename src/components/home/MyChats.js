@@ -116,7 +116,7 @@ export const MyChats = ({ fetchAgain }) => {
             ))}
           </Stack>
         ) : (
-          <ChatLoading />
+          chats.length !== 0 && <ChatLoading />
         )}
       </Box>
       {alertElem}

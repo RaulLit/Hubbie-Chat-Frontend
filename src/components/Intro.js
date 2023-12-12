@@ -9,7 +9,7 @@ export const Intro = () => {
   return (
     <Box
       sx={{
-        marginTop: 5,
+        marginTop: { xs: 5, md: 10 },
         width: "100%",
         display: "flex",
         justifyContent: "center",

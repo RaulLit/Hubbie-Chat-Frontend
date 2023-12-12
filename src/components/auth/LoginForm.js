@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -8,7 +7,6 @@ import { useLogin } from "../../hooks/useLogin";
 
 export const LoginForm = () => {
   const { login, error, isLoading } = useLogin();
-  const navigate = useNavigate();
 
   // Schema
   const schema = yup.object().shape({
@@ -28,7 +26,6 @@ export const LoginForm = () => {
   const handleLogin = async (data) => {
     const { email, password } = data;
     await login(email, password);
-    navigate("/home");
   };
 
   return (
