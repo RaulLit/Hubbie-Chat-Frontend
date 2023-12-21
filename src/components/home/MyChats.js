@@ -6,9 +6,11 @@ import { useAlert } from "../../hooks/useAlert";
 import { ChatLoading } from "./ChatLoading";
 import { getSender } from "../../util/Utilities";
 import { NewGroupModel } from "./NewGroupModel";
+import { useLogout } from "../../hooks/useLogout";
 
 export const MyChats = ({ fetchAgain }) => {
   const { user } = useContext(AuthContext);
+  const { logout } = useLogout();
   const { setAlert, alertElem, showAlert } = useAlert();
   const { selectedChat, setSelectedChat, chats, setChats } = useContext(ChatContext);
 
@@ -23,10 +25,12 @@ export const MyChats = ({ fetchAgain }) => {
       const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/chat/`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
-      const fetched_chats = await response.json();
-      setChats(fetched_chats);
+      const json = await response.json();
+      if (json.status && json.status === "error" && json.message === "Auth token expired")
+        logout();
+      else setChats(json);
       // local storage
-      localStorage.setItem("chats", JSON.stringify(fetched_chats));
+      localStorage.setItem("chats", JSON.stringify(json));
     } catch (err) {
       // Alert
       setAlert({
