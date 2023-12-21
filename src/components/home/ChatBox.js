@@ -15,10 +15,14 @@ import { getSender, getSenderObj } from "../../util/Utilities";
 import { ProfileModel } from "./ProfileModel";
 import { Chat } from "./Chat";
 import { useAlert } from "../../hooks/useAlert";
+import { io } from "socket.io-client";
+import { TypingIndicator } from "./TypingIndicator";
+var socket, compareSelectedChat;
 
 export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   const { user } = useContext(AuthContext);
-  const { selectedChat, setSelectedChat } = useContext(ChatContext);
+  const { selectedChat, setSelectedChat, notification, setNotification } =
+    useContext(ChatContext);
   const { alertElem, setAlert, showAlert } = useAlert();
 
   // Update Group Chat Model
@@ -36,6 +40,11 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
+  // socket
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
   const fetchMessages = async () => {
     if (!selectedChat) return;
     try {
@@ -49,6 +58,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       if (!response.ok) throw Error(data.error);
       setMessages(data);
       setMessageLoading(false);
+      socket.emit("join_chat", selectedChat._id);
     } catch (err) {
       // Alert
       setAlert({
@@ -66,12 +76,29 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
+  let myTimeout;
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
+
+    // typing indicator
+    if (!socketConnected) return;
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+    if (myTimeout) clearTimeout(myTimeout);
+
+    myTimeout = setTimeout(() => {
+      if (typing) {
+        socket.emit("typing_stopped", selectedChat._id);
+        setTyping(false);
+      }
+    }, 3000);
   };
 
   const handleSendMessage = async () => {
     try {
+      socket.emit("typing_stopped", selectedChat._id);
       const messageData = newMessage;
       setNewMessage("");
       const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/`, {
@@ -85,6 +112,8 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       const data = await response.json();
       // Response Check
       if (!response.ok) throw Error(data.error);
+      // socket
+      socket.emit("new_msg", data);
       setMessages([...messages, data]);
     } catch (err) {
       // Alert
@@ -103,7 +132,30 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
+    socket = io(process.env.REACT_APP_SERVER_URL);
+    socket.emit("setup", user);
+    socket.on("connected", () => setSocketConnected(true));
+  }, []);
+
+  useEffect(() => {
+    socket.on("msg_rxd", (rx_msg) => {
+      if (!compareSelectedChat || compareSelectedChat._id !== rx_msg.chat._id) {
+        // notification
+        if (!notification.includes(rx_msg)) {
+          setNotification([rx_msg, ...notification]);
+        }
+      } else {
+        setMessages([...messages, rx_msg]);
+        setFetchAgain(!fetchAgain);
+      }
+    });
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("typing_stopped", () => setIsTyping(false));
+  });
+
+  useEffect(() => {
     fetchMessages();
+    compareSelectedChat = selectedChat;
   }, [selectedChat]);
 
   return (
@@ -181,6 +233,8 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <Chat messages={messages} />
             )}
+            {/* Input */}
+            {isTyping && <TypingIndicator />}
             <FormControl fullWidth sx={{ display: "flex", flexDirection: "row" }}>
               <OutlinedInput
                 placeholder="Type a message"

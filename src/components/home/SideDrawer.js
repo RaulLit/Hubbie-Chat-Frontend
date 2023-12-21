@@ -1,6 +1,7 @@
 import { Search, Notifications } from "@mui/icons-material";
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Divider,
@@ -21,6 +22,7 @@ import { ChatLoading } from "./ChatLoading";
 import { UserCard } from "./UserCard";
 import { ChatContext } from "../../contexts/ChatContext";
 import { useSearch } from "../../hooks/useSearch";
+import { getSender } from "../../util/Utilities";
 
 export const SideDrawer = () => {
   const { user } = useContext(AuthContext);
@@ -101,6 +103,10 @@ export const SideDrawer = () => {
     }
   };
 
+  // Notification Menu
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const closeNotificationMenu = () => setNotificationAnchor(null);
+
   // Profile Menu
   const [profileAnchor, setProfileAnchor] = useState(null);
   const closeProfileMenu = () => setProfileAnchor(null);
@@ -158,25 +164,48 @@ export const SideDrawer = () => {
         </Typography>
 
         <Box>
-          <IconButton size="large" sx={{ padding: { xs: "0.2rem", sm: "0.5rem" } }}>
-            <Notifications />
-          </IconButton>
-          {/* <Menu
-          anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          open={Boolean(anchorEl)}
-          onClose={closeMenu}
-        >
-          <MenuItem>Notification 1</MenuItem>
-        </Menu> */}
+          <Tooltip title="Notifications">
+            <IconButton
+              onClick={(e) => setNotificationAnchor(e.currentTarget)}
+              size="large"
+              sx={{ padding: { xs: "0.2rem", sm: "0.5rem" } }}
+            >
+              <Badge badgeContent={notification.length} color="primary">
+                <Notifications />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={notificationAnchor}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            keepMounted
+            open={Boolean(notificationAnchor)}
+            onClose={closeNotificationMenu}
+          >
+            {!notification.length && (
+              <Typography p={1} variant="caption">
+                No new messages
+              </Typography>
+            )}
+            {notification.map((msg) => (
+              <MenuItem
+                key={msg._id}
+                onClick={() => {
+                  setSelectedChat(msg.chat);
+                  setNotification(notification.filter((n) => n !== msg));
+                  closeNotificationMenu();
+                }}
+              >
+                {msg.chat.isGroupChat
+                  ? `${msg.chat.chatName}`
+                  : `${getSender(user, msg.chat.users)}`}
+              </MenuItem>
+            ))}
+            {/* <MenuItem>Notification 1</MenuItem> */}
+          </Menu>
 
           <Tooltip title={user.name}>
             <IconButton
