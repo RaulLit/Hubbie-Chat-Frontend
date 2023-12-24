@@ -31,6 +31,12 @@ export const Chat = ({ messages }) => {
               <Chip
                 label={m.content}
                 sx={{
+                  height: "auto",
+                  padding: "0.5rem 0.2rem",
+                  "& .MuiChip-label": {
+                    display: "block",
+                    whiteSpace: "normal",
+                  },
                   background:
                     m.sender._id === user._id
                       ? (t) => t.palette.primary.main
