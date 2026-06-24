@@ -1,11 +1,16 @@
-import { Avatar, Box, Chip, Tooltip } from "@mui/material";
+import { Avatar, Box, Tooltip, Typography } from "@mui/material";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
+import { ChatContext } from "../../contexts/ChatContext";
 import ScrollableFeed from "react-scrollable-feed";
-import { isLastMessage, isSameSender } from "../../util/Utilities";
+import { isLastMessage, isSameSender, isDifferentDay, formatDatePill } from "../../util/Utilities";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 export const Chat = ({ messages }) => {
   const { user } = useContext(AuthContext);
+  const { selectedChat } = useContext(ChatContext);
 
   return (
     <Box
@@ -18,42 +23,149 @@ export const Chat = ({ messages }) => {
     >
       <ScrollableFeed>
         {messages &&
-          messages.map((m, i) => (
-            <Box key={m._id} sx={{ display: "flex", alignItems: "center" }}>
-              {(isSameSender(messages, m, i, user._id) ||
-                isLastMessage(messages, i, user._id)) && (
-                <Tooltip title={m.sender.name} placement="bottom-start" arrow>
-                  <Avatar sx={{ width: "1.5rem", height: "1.5rem" }} alt={m.sender.name}>
-                    {m.sender.name[0]}
-                  </Avatar>
-                </Tooltip>
-              )}
-              <Chip
-                label={m.content}
-                sx={{
-                  height: "auto",
-                  padding: "0.5rem 0.2rem",
-                  "& .MuiChip-label": {
-                    display: "block",
-                    whiteSpace: "normal",
-                  },
-                  background:
-                    m.sender._id === user._id
-                      ? (t) => t.palette.primary.main
-                      : (t) => t.palette.secondary.main,
-                  maxWidth: "70%",
-                  margin: "0.1rem 0",
-                  marginLeft:
-                    m.sender._id === user._id
-                      ? "auto"
-                      : isSameSender(messages, m, i, user._id) ||
-                        isLastMessage(messages, i, user._id)
-                      ? "0.1rem"
-                      : "1.5rem",
-                }}
-              />
-            </Box>
-          ))}
+          messages.map((m, i) => {
+            const showDatePill = i === 0 || isDifferentDay(messages[i - 1], m);
+            
+            // Checkmark status logic
+            let isRead = false;
+            let isDelivered = false; // Double grey checks for group chats read by at least one member
+
+            if (m.sender._id === user._id) {
+              const readByOthers = (m.readBy || []).filter(
+                (uid) => (uid._id || uid).toString() !== user._id.toString()
+              );
+              
+              if (selectedChat?.isGroupChat) {
+                const totalParticipants = selectedChat.users.length;
+                if (readByOthers.length === totalParticipants - 1) {
+                  isRead = true;
+                } else if (readByOthers.length > 0) {
+                  isDelivered = true;
+                }
+              } else {
+                if (readByOthers.length > 0) {
+                  isRead = true;
+                }
+              }
+            }
+
+            return (
+              <Box key={m._id || `msg-${i}`} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                {showDatePill && (
+                  <Box sx={{ display: "flex", justifyContent: "center", margin: "1rem 0", width: "100%" }}>
+                    <Box
+                      sx={{
+                        background: (t) => t.palette.action.disabledBackground,
+                        color: (t) => t.palette.text.secondary,
+                        fontSize: "0.75rem",
+                        fontWeight: "bold",
+                        padding: "4px 12px",
+                        borderRadius: "1rem",
+                        userSelect: "none",
+                      }}
+                    >
+                      {formatDatePill(m.createdAt)}
+                    </Box>
+                  </Box>
+                )}
+                
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    justifyContent: m.sender._id === user._id ? "flex-end" : "flex-start",
+                    margin: "0.15rem 0",
+                  }}
+                >
+                  {m.sender._id !== user._id &&
+                    (isSameSender(messages, m, i, user._id) ||
+                      isLastMessage(messages, i, user._id)) && (
+                      <Tooltip title={m.sender.name} placement="bottom-start" arrow>
+                        <Avatar
+                          sx={{
+                            width: "1.75rem",
+                            height: "1.75rem",
+                            fontSize: "0.8rem",
+                            marginRight: 1,
+                          }}
+                          alt={m.sender.name}
+                        >
+                          {m.sender.name[0]}
+                        </Avatar>
+                      </Tooltip>
+                    )}
+                  
+                  <Box
+                    sx={{
+                      background:
+                        m.sender._id === user._id
+                          ? (t) => t.palette.primary.main
+                          : (t) => t.palette.secondary.main,
+                      color:
+                        m.sender._id === user._id
+                          ? (t) => t.palette.primary.contrastText
+                          : (t) => t.palette.secondary.contrastText,
+                      borderRadius: "1rem",
+                      padding: "0.5rem 1rem",
+                      maxWidth: "70%",
+                      marginLeft:
+                        m.sender._id === user._id
+                          ? "auto"
+                          : isSameSender(messages, m, i, user._id) ||
+                            isLastMessage(messages, i, user._id)
+                          ? 0
+                          : "2.25rem",
+                      boxShadow: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        alignSelf: "flex-start",
+                        wordBreak: "break-word",
+                        fontSize: "0.95rem",
+                        textAlign: "left",
+                      }}
+                    >
+                      {m.content}
+                    </Typography>
+                    
+                    <Box sx={{ display: "flex", alignItems: "center", marginTop: "0.2rem", gap: 0.5 }}>
+                      <Typography
+                        sx={{
+                          fontSize: "0.65rem",
+                          opacity: 0.7,
+                          userSelect: "none",
+                        }}
+                      >
+                        {new Date(m.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Typography>
+                      
+                      {m.sender._id === user._id && (
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          {m.status === "pending" ? (
+                            <AccessTimeIcon sx={{ fontSize: "0.75rem", opacity: 0.7 }} />
+                          ) : isRead ? (
+                            <DoneAllIcon sx={{ fontSize: "0.85rem", color: "#34B7F1" }} />
+                          ) : isDelivered ? (
+                            <DoneAllIcon sx={{ fontSize: "0.85rem", opacity: 0.7 }} />
+                          ) : (
+                            <DoneIcon sx={{ fontSize: "0.85rem", opacity: 0.7 }} />
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            );
+          })}
       </ScrollableFeed>
     </Box>
   );

@@ -93,6 +93,7 @@ export const UpdateGroupModel = ({
             Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify({ chatId: selectedChat._id, userId: selected_user._id }),
+          credentials: "include",
         }
       );
       const data = await response.json();
@@ -133,6 +134,7 @@ export const UpdateGroupModel = ({
             Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify({ chatId: selectedChat._id, chatName: groupName }),
+          credentials: "include",
         }
       );
       const data = await response.json();
@@ -227,6 +229,7 @@ export const UpdateGroupModel = ({
             Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify({ chatId: selectedChat._id, userId: new_user._id }),
+          credentials: "include",
         }
       );
       const data = await response.json();
@@ -266,6 +269,7 @@ export const UpdateGroupModel = ({
             Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify({ chatId: selectedChat._id, userId: user._id }),
+          credentials: "include",
         }
       );
       const data = await response.json();

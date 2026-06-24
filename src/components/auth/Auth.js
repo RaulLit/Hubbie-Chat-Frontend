@@ -34,12 +34,14 @@ export const Auth = () => {
         }}
       >
         <LoginForm />
+
         <Divider
           orientation={isSmallScreen ? "horizontal" : "vertical"}
           variant="middle"
           flexItem
           color="black"
         />
+
         <SignupForm />
       </Box>
     </Container>

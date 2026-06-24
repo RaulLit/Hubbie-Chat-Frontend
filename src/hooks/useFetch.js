@@ -1,45 +1,78 @@
 import { useState } from "react";
-import { useLogout } from "./useLogout";
+import { useAuthContext } from "./useAuthContext";
+import { useAlert } from "./useAlert";
+import axios from "axios";
 
-export const useFetch = (options) => {
-  const method = options.method || "GET";
-  const headers = options.headers || { "Content-Type": "application/json" };
-  const body = options.body || undefined;
-
+export const useFetch = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const { logout } = useLogout();
+  const { dispatch } = useAuthContext();
+  const { setAlert } = useAlert();
 
-  const fetchData = async (url) => {
-    try {
-      setLoading(true);
-      const response = await fetch(url, {
-        method,
-        headers,
-        body,
-      });
-      const result = await response.json();
-      // Check for auth token expire
+  const client = axios.create({
+    baseURL: process.env.REACT_APP_SERVER_URL || "http://localhost:4000",
+    withCredentials: true,
+    headers: { "Content-Type": "application/json" },
+  });
+
+  // Response interceptor
+  client.interceptors.response.use(
+    (response) => {
+      // If the response is successful, just return it
+      return response;
+    },
+    async (error) => {
+      // Check for auth token expired
       if (
-        result.status &&
-        result.status === "error" &&
-        result.message &&
-        result.message === "Auth token expired"
+        (error.response && error.response.status === 401) ||
+        error?.response?.data?.message === "Auth token expired"
       ) {
-        setLoading(false);
-        setData(null);
-        logout();
-        return null;
+        await _logout();
+        return Promise.reject({ message: "Auth token expired", status: 401 });
       }
-      setLoading(false);
-      setData(result);
+      // For other errors, just return the original error
+      return Promise.reject(error);
+    }
+  );
+
+  // Logout for auth token expire
+  const _logout = async () => {
+    const response = await client.get(`/api/auth/logout`);
+    const result = response.data;
+    if (result.status === "success") {
+      dispatch({ type: "LOGOUT" });
+      setAlert({ message: "Auth token expired. Login to continue", severity: "error" });
+    } else setAlert({ message: "Something went wrong. Try again", severity: "error" });
+  };
+
+  const request = async (url, { method = "GET", data = {}, params = {} } = {}) => {
+    setLoading(true);
+    setData(null);
+    setError(null);
+    try {
+      const response = await client({
+        url,
+        method,
+        data,
+        params,
+      });
+      const result = response.data;
+
+      console.log("inside useFetch", result.data);
+
+      setData(result.data);
+      // set variables
+      setData(result.data || null);
       return result;
     } catch (err) {
-      console.log(err);
-      setError(err.message);
+      setError(err.response.data.message || err.message);
+      setData(null);
+      console.log("inside useFetch", err);
+      return err.response.data;
+    } finally {
       setLoading(false);
     }
   };
-  return { data, loading, error, fetchData };
+  return { data, loading, error, request };
 };

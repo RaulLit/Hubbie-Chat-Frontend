@@ -1,40 +1,33 @@
-import { useState } from "react";
 import { useAuthContext } from "./useAuthContext";
 import { useNavigate } from "react-router-dom";
+import { useFetch } from "./useFetch";
 
 export const useLogin = () => {
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
   const { dispatch } = useAuthContext();
   const navigate = useNavigate();
+  const { request, error, loading } = useFetch();
 
   const login = async (email, password) => {
-    setError(null);
-    setIsLoading(true);
+    try {
+      const result = await request("/api/auth/login", {
+        method: "POST",
+        data: JSON.stringify({ email, password }),
+      });
 
-    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/user/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+      if (result && result.status === "error") throw Error(result.message);
 
-    const json = await response.json();
+      if (result && result.status === "success") {
+        // save user to local storage
+        localStorage.setItem("user", JSON.stringify(result.data));
 
-    if (!response.ok) {
-      setIsLoading(false);
-      setError(json.error);
-    }
-
-    if (response.ok) {
-      // save user to local storage
-      localStorage.setItem("user", JSON.stringify(json));
-
-      // update the auth context
-      dispatch({ type: "LOGIN", payload: json });
-      setIsLoading(false);
-      navigate("/home");
+        // update the auth context
+        dispatch({ type: "LOGIN", payload: result.data });
+        navigate("/home");
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  return { login, isLoading, error };
+  return { login, loading, error };
 };

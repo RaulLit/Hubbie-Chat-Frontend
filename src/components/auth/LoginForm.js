@@ -6,7 +6,7 @@ import { Button, Container, TextField, Typography } from "@mui/material";
 import { useLogin } from "../../hooks/useLogin";
 
 export const LoginForm = () => {
-  const { login, error, isLoading } = useLogin();
+  const { login, error, loading } = useLogin();
 
   // Schema
   const schema = yup.object().shape({
@@ -61,7 +61,7 @@ export const LoginForm = () => {
           variant="contained"
           endIcon={<Send />}
           sx={{ mt: 2 }}
-          disabled={isLoading}
+          disabled={loading}
         >
           Login
         </Button>
