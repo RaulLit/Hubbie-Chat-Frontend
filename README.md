@@ -1,70 +1,69 @@
-# Getting Started with Create React App
+# Hubbie Chat - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Hubbie Chat is a responsive, feature-rich, single-page real-time messaging application. Built on top of React, Material-UI (MUI), and WebSockets (Socket.IO), it offers a premium, modern chat experience with high-fidelity animations, real-time sync, and cookie-based authentication.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## ✨ Key Features
+* **💬 Real-Time Messaging:** Instant message delivery and sync across clients using WebSockets.
+* **⚡ Optimistic Send UI:** Messages appear instantly in the chat timeline with a pending clock icon while being saved to the database.
+* **✓✓ Database Read Receipts:** Persistent checkmark indicators (Pending clock ➔ Sent single tick ➔ Delivered double ticks ➔ Read double blue ticks).
+* **⌨️ Live Typing Indicators:** Visual cues indicating when another participant is typing.
+* **📅 Date-Segregated Timeline:** Centered date pills ("Today", "Yesterday", "Wednesday, June 24, 2026") group messages by day.
+* **👥 Group Chats:** Dynamic creation and configuration of group rooms (renaming, adding/ejecting users, admin rules).
+* **🌓 Light & Dark Theme Support:** Seamless theme toggling persisted across sessions.
+* **📱 Responsive Layouts:** Optimized viewport adjustments establishing a 3:7 column split on desktops and switching to single-pane views on mobile devices.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🚀 Tech Stack
+* **UI/UX:** React (v18), Material UI (v5), Emotion styling engine
+* **HTTP Client:** Axios (intercepted for automatic expired session logouts)
+* **Realtime Sync:** Socket.IO Client
+* **Form Logic:** React Hook Form & Yup
+* **Routing:** React Router Dom (v6)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠️ Installation & Setup Guide
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 1. Prerequisites
+Ensure you have the following installed on your machine:
+* **Node.js** (v18.0.0 or higher recommended)
+* **npm** (comes packaged with Node.js)
 
-### `npm run build`
+### 2. Install Dependencies
+Navigate to the frontend folder and install the package dependencies:
+```bash
+cd frontend
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Environment Configuration
+Create a local `.env` file in the root of the `frontend` folder using the provided template:
+```bash
+cp .env.example .env
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Open the `.env` file and set the required variables:
+```env
+# URL where the backend Node/Express server is running
+REACT_APP_SERVER_URL=http://localhost:4000
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# URL where the React application client is hosted
+REACT_APP_CLIENT_URL=http://localhost:3000
+```
 
-### `npm run eject`
+### 4. Run the Development Server
+Launch the application locally in development mode:
+```bash
+npm start
+```
+The application will automatically build and open in your default browser at [http://localhost:3000](http://localhost:3000).
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 5. Build for Production
+Generate an optimized, minified production bundle in the `build` directory:
+```bash
+npm run build
+```
+This builds static assets ready to be deployed on static hosts (e.g., Netlify, Vercel, or served via Nginx).
