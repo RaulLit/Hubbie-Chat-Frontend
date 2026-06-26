@@ -48,10 +48,7 @@ export const Intro = () => {
                   fontWeight: 900,
                   fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4rem" },
                   lineHeight: 1.2,
-                  background: (t) =>
-                    mode === "dark"
-                      ? "linear-gradient(45deg, #FF8A65 30%, #FFB74D 90%)"
-                      : "linear-gradient(45deg, #1976D2 30%, #42A5F5 90%)",
+                  background: "linear-gradient(45deg, #FF8A65 30%, #FFB74D 90%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   marginBottom: 2,

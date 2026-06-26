@@ -1,4 +1,5 @@
 import { Box, Container, Divider, Typography, useMediaQuery } from "@mui/material";
+import Link from "next/link";
 import { SignupForm } from "./SignupForm";
 import { LoginForm } from "./LoginForm";
 
@@ -16,13 +17,15 @@ export const Auth = () => {
       }}
     >
       <Box p={2}>
-        <Typography
-          variant="h3"
-          sx={{ typography: { xs: "h4", sm: "h3" } }}
-          color="primary"
-        >
-          Hubbie Chat
-        </Typography>
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <Typography
+            variant="h3"
+            sx={{ typography: { xs: "h4", sm: "h3" }, cursor: "pointer" }}
+            color="primary"
+          >
+            Hubbie Chat
+          </Typography>
+        </Link>
       </Box>
       <Box
         sx={{

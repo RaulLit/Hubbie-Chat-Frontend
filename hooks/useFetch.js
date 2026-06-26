@@ -38,12 +38,15 @@ export const useFetch = () => {
 
   // Logout for auth token expire
   const _logout = async () => {
-    const response = await client.get(`/api/auth/logout`);
-    const result = response.data;
-    if (result.status === "success") {
-      dispatch({ type: "LOGOUT" });
-      setAlert({ message: "Auth token expired. Login to continue", severity: "error" });
-    } else setAlert({ message: "Something went wrong. Try again", severity: "error" });
+    try {
+      await client.get(`/api/auth/logout`);
+    } catch (e) {
+      console.log("Session logout request error:", e);
+    }
+    localStorage.removeItem("user");
+    localStorage.removeItem("chats");
+    dispatch({ type: "LOGOUT" });
+    setAlert({ message: "Auth token expired. Login to continue", severity: "error" });
   };
 
   const request = async (url, { method = "GET", data = {}, params = {} } = {}) => {
