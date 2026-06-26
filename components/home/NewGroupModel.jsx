@@ -110,7 +110,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
       users: JSON.stringify(groupUsers.map((u) => u.id)),
     };
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/chat/group`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/group`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

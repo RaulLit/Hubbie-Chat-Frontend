@@ -1,9 +1,9 @@
 import { useAuthContext } from "./useAuthContext";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 export const useLogout = () => {
   const { dispatch } = useAuthContext();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const logout = () => {
     // remove user & chats from local storage
@@ -14,7 +14,7 @@ export const useLogout = () => {
     dispatch({ type: "LOGOUT" });
 
     // redirect to login page
-    navigate("/auth");
+    router.push("/auth");
   };
 
   return { logout };

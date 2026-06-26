@@ -1,6 +1,6 @@
 # Hubbie Chat - Frontend
 
-Hubbie Chat is a responsive, feature-rich, single-page real-time messaging application. Built on top of React, Material-UI (MUI), and WebSockets (Socket.IO), it offers a premium, modern chat experience with high-fidelity animations, real-time sync, and cookie-based authentication.
+Hubbie Chat is a responsive, feature-rich, real-time messaging application. Migrated to Next.js using the App Router, Material-UI (MUI), and WebSockets (Socket.IO), it offers a premium, modern chat experience with high-fidelity animations, real-time sync, and cookie-based authentication.
 
 ---
 
@@ -17,11 +17,12 @@ Hubbie Chat is a responsive, feature-rich, single-page real-time messaging appli
 ---
 
 ## 🚀 Tech Stack
+* **Framework:** Next.js (v14) using App Router
 * **UI/UX:** React (v18), Material UI (v5), Emotion styling engine
 * **HTTP Client:** Axios (intercepted for automatic expired session logouts)
 * **Realtime Sync:** Socket.IO Client
 * **Form Logic:** React Hook Form & Yup
-* **Routing:** React Router Dom (v6)
+* **Routing:** Next.js filesystem-based App Router
 
 ---
 
@@ -48,22 +49,27 @@ cp .env.example .env
 Open the `.env` file and set the required variables:
 ```env
 # URL where the backend Node/Express server is running
-REACT_APP_SERVER_URL=http://localhost:4000
+NEXT_PUBLIC_SERVER_URL=http://localhost:4000
 
-# URL where the React application client is hosted
-REACT_APP_CLIENT_URL=http://localhost:3000
+# URL where the client application is hosted
+NEXT_PUBLIC_CLIENT_URL=http://localhost:3000
 ```
 
 ### 4. Run the Development Server
 Launch the application locally in development mode:
 ```bash
-npm start
+npm run dev
 ```
-The application will automatically build and open in your default browser at [http://localhost:3000](http://localhost:3000).
+The application development server will run at [http://localhost:3000](http://localhost:3000).
 
-### 5. Build for Production
-Generate an optimized, minified production bundle in the `build` directory:
+### 5. Build and Start for Production
+Generate an optimized production build:
 ```bash
 npm run build
 ```
-This builds static assets ready to be deployed on static hosts (e.g., Netlify, Vercel, or served via Nginx).
+
+To run the built production server locally:
+```bash
+npm run start
+```
+This builds and serves the Next.js application, ready for production deployment (e.g., Vercel, AWS, Netlify, or custom VPS).

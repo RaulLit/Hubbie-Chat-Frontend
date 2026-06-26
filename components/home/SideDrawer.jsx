@@ -74,7 +74,7 @@ export const SideDrawer = () => {
     try {
       // setLoadingChat(true);
 
-      const data = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/chat/`, {
+      const data = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

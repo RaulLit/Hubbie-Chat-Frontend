@@ -1,15 +1,18 @@
-import { createContext, useState, useMemo } from "react";
+"use client";
+
+import { createContext, useState, useMemo, useEffect } from "react";
 import { ThemeProvider, createTheme, useMediaQuery } from "@mui/material";
 import { blue, deepOrange, blueGrey } from "@mui/material/colors";
 
 export const ThemeContext = createContext();
 
-const body = document.querySelector("body");
-
 export const ThemeContextProvider = ({ children }) => {
-  const [mode, setMode] = useState(
-    useMediaQuery("(prefers-color-scheme: dark)") ? "dark" : "light"
-  );
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [mode, setMode] = useState("light");
+
+  useEffect(() => {
+    setMode(prefersDarkMode ? "dark" : "light");
+  }, [prefersDarkMode]);
 
   const getDesignTokens = (mode) => ({
     typography: {
@@ -64,8 +67,15 @@ export const ThemeContextProvider = ({ children }) => {
   );
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
-  body.style.backgroundColor = theme.palette.background.default;
-  body.style.color = theme.palette.text.primary;
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const body = document.querySelector("body");
+      if (body) {
+        body.style.backgroundColor = theme.palette.background.default;
+        body.style.color = theme.palette.text.primary;
+      }
+    }
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ toggleTheme, mode }}>
@@ -73,3 +83,4 @@ export const ThemeContextProvider = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
+

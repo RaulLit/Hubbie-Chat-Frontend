@@ -11,7 +11,7 @@ export const useSearch = () => {
     setError(null);
     try {
       const fetched_users = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/user/allUser?search=${search}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/allUser?search=${search}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
           credentials: "include",
