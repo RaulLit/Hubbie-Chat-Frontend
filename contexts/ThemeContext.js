@@ -7,12 +7,17 @@ import { blue, deepOrange, blueGrey } from "@mui/material/colors";
 export const ThemeContext = createContext();
 
 export const ThemeContextProvider = ({ children }) => {
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [mode, setMode] = useState("light");
 
   useEffect(() => {
-    setMode(prefersDarkMode ? "dark" : "light");
-  }, [prefersDarkMode]);
+    const savedTheme = localStorage.getItem("themeMode");
+    if (savedTheme) {
+      setMode(savedTheme);
+    } else if (typeof window !== "undefined") {
+      const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setMode(prefersDarkMode ? "dark" : "light");
+    }
+  }, []);
 
   const getDesignTokens = (mode) => ({
     typography: {
@@ -25,33 +30,24 @@ export const ThemeContextProvider = ({ children }) => {
     palette: {
       mode,
       primary: {
-        ...deepOrange,
-        ...(mode === "dark" && {
-          main: deepOrange[300],
-        }),
+        main: mode === "dark" ? deepOrange[300] : "#E64A19",
+        light: mode === "dark" ? deepOrange[200] : deepOrange[400],
+        dark: mode === "dark" ? deepOrange[500] : deepOrange[700],
+        contrastText: "#fff",
       },
       secondary: {
-        ...blue,
-        ...(mode === "dark" && {
-          main: blue[300],
-        }),
+        main: mode === "dark" ? blue[300] : "#1976D2",
+        light: mode === "dark" ? blue[200] : blue[400],
+        dark: mode === "dark" ? blue[500] : blue[700],
+        contrastText: "#fff",
       },
-      ...(mode === "dark" && {
-        background: {
-          default: blueGrey[900],
-          paper: blueGrey[800],
-        },
-      }),
+      background: {
+        default: mode === "dark" ? blueGrey[900] : "#E2E8F0",
+        paper: mode === "dark" ? blueGrey[800] : "#F8FAFC",
+      },
       text: {
-        ...(mode === "light"
-          ? {
-              primary: blueGrey[900],
-              secondary: blueGrey[800],
-            }
-          : {
-              primary: "#fff",
-              secondary: blueGrey[500],
-            }),
+        primary: mode === "dark" ? "#FFFFFF" : "#1F2937",
+        secondary: mode === "dark" ? blueGrey[300] : "#4B5563",
       },
     },
   });
@@ -60,7 +56,11 @@ export const ThemeContextProvider = ({ children }) => {
     () => ({
       // The dark mode switch would invoke this method
       toggleTheme: () => {
-        setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+        setMode((prevMode) => {
+          const nextMode = prevMode === "light" ? "dark" : "light";
+          localStorage.setItem("themeMode", nextMode);
+          return nextMode;
+        });
       },
     }),
     []

@@ -23,11 +23,13 @@ import { UserCard } from "./UserCard";
 import { ChatContext } from "../../contexts/ChatContext";
 import { useSearch } from "../../hooks/useSearch";
 import { getSender } from "../../util/Utilities";
+import { ThemeContext } from "../../contexts/ThemeContext";
 
 export const SideDrawer = () => {
   const { user } = useContext(AuthContext);
   const { logout } = useLogout();
   const { setAlert, alertElem, showAlert } = useAlert();
+  const { toggleTheme, mode } = useContext(ThemeContext);
   // eslint-disable-next-line
   const { setSelectedChat, notification, setNotification, chats, setChats } =
     useContext(ChatContext);
@@ -237,6 +239,9 @@ export const SideDrawer = () => {
             >
               <MenuItem onClick={handleOpenModel}>Profile</MenuItem>
             </ProfileModel>
+            <MenuItem onClick={() => { toggleTheme(); closeProfileMenu(); }}>
+              {mode === "dark" ? "Light Theme" : "Dark Theme"}
+            </MenuItem>
             <MenuItem onClick={handleLogout}>Log out</MenuItem>
           </Menu>
         </Box>

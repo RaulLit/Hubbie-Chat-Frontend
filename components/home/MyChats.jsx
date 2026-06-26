@@ -56,6 +56,14 @@ export const MyChats = ({ fetchAgain }) => {
         background: (t) => t.palette.background.paper,
         width: { xs: "100%", md: "30%" },
         borderRadius: "1rem",
+        boxShadow: (t) =>
+          t.palette.mode === "light"
+            ? "0 4px 20px -2px rgba(0,0,0,0.05), 0 2px 8px -1px rgba(0,0,0,0.05)"
+            : "none",
+        border: (t) =>
+          t.palette.mode === "light"
+            ? "1px solid rgba(0,0,0,0.04)"
+            : "1px solid rgba(255,255,255,0.05)",
       }}
     >
       <Box

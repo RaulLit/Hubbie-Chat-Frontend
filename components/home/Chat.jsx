@@ -101,11 +101,11 @@ export const Chat = ({ messages }) => {
                       background:
                         m.sender.id === user.id
                           ? (t) => t.palette.primary.main
-                          : (t) => t.palette.secondary.main,
+                          : (t) => (t.palette.mode === "dark" ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF"),
                       color:
                         m.sender.id === user.id
                           ? (t) => t.palette.primary.contrastText
-                          : (t) => t.palette.secondary.contrastText,
+                          : (t) => (t.palette.mode === "dark" ? "#ffffff" : "#1F2937"),
                       borderRadius: "1rem",
                       padding: "0.5rem 1rem",
                       maxWidth: "70%",
