@@ -50,7 +50,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     try {
       setMessageLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/message/${selectedChat._id}`,
+        `${process.env.REACT_APP_SERVER_URL}/api/message/${selectedChat.id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
           credentials: "include",
@@ -60,7 +60,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       if (!response.ok) throw Error(data.error);
       setMessages(data);
       setMessageLoading(false);
-      socket.emit("join_chat", selectedChat._id);
+      socket.emit("join_chat", selectedChat.id);
 
       // Update read status in database
       await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/read`, {
@@ -69,14 +69,14 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ chatId: selectedChat._id }),
+        body: JSON.stringify({ chatId: selectedChat.id }),
         credentials: "include",
       });
 
       // Notify others in room
       socket.emit("read_receipt", {
-        chatId: selectedChat._id,
-        readerId: user._id,
+        chatId: selectedChat.id,
+        readerId: user.id,
       });
     } catch (err) {
       setAlert({
@@ -96,13 +96,13 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     if (!socketConnected) return;
     if (!typing) {
       setTyping(true);
-      socket.emit("typing", selectedChat._id);
+      socket.emit("typing", selectedChat.id);
     }
     if (myTimeout) clearTimeout(myTimeout);
 
     myTimeout = setTimeout(() => {
       if (typing) {
-        socket.emit("typing_stopped", selectedChat._id);
+        socket.emit("typing_stopped", selectedChat.id);
         setTyping(false);
       }
     }, 3000);
@@ -116,12 +116,12 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     // Generate optimistic tempId
     const tempId = `temp-${Date.now()}`;
     const tempMsg = {
-      _id: tempId,
-      sender: { _id: user._id, name: user.name },
+      id: tempId,
+      sender: { id: user.id, name: user.name },
       content: messageContent,
-      chat: selectedChat._id,
+      chat: selectedChat.id,
       createdAt: new Date().toISOString(),
-      readBy: [user._id],
+      readBy: [user.id],
       status: "pending",
     };
 
@@ -129,14 +129,14 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     setMessages((prev) => [...prev, tempMsg]);
 
     try {
-      socket.emit("typing_stopped", selectedChat._id);
+      socket.emit("typing_stopped", selectedChat.id);
       const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ chatId: selectedChat._id, content: messageContent }),
+        body: JSON.stringify({ chatId: selectedChat.id, content: messageContent }),
         credentials: "include",
       });
       const data = await response.json();
@@ -144,13 +144,13 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
 
       // Update temporary message with official database message (defaults to status: "sent")
       setMessages((prev) =>
-        prev.map((m) => (m._id === tempId ? { ...data, status: "sent" } : m))
+        prev.map((m) => (m.id === tempId ? { ...data, status: "sent" } : m))
       );
 
       socket.emit("new_msg", data);
     } catch (err) {
       // Remove optimistic message on error
-      setMessages((prev) => prev.filter((m) => m._id !== tempId));
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
 
       setAlert({
         message: err.message,
@@ -172,14 +172,14 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     if (!socketConnected) return;
 
     const handleMsgRxd = async (rx_msg) => {
-      if (!compareSelectedChat || compareSelectedChat._id !== rx_msg.chat._id) {
-        if (!notification.some((n) => n._id === rx_msg._id)) {
+      if (!compareSelectedChat || compareSelectedChat.id !== rx_msg.chat.id) {
+        if (!notification.some((n) => n.id === rx_msg.id)) {
           setNotification([rx_msg, ...notification]);
         }
       } else {
         // Mark as read in DB immediately since chat is active
         try {
-          const updatedMsg = { ...rx_msg, readBy: [...(rx_msg.readBy || []), user._id] };
+          const updatedMsg = { ...rx_msg, readBy: [...(rx_msg.readBy || []), user.id] };
           setMessages((prev) => [...prev, updatedMsg]);
 
           await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/read`, {
@@ -188,15 +188,15 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user.token}`,
             },
-            body: JSON.stringify({ chatId: rx_msg.chat._id }),
+            body: JSON.stringify({ chatId: rx_msg.chat.id }),
             credentials: "include",
           });
 
           // Notify sender
           socket.emit("read_receipt", {
-            chatId: rx_msg.chat._id,
-            messageId: rx_msg._id,
-            readerId: user._id,
+            chatId: rx_msg.chat.id,
+            messageId: rx_msg.id,
+            readerId: user.id,
           });
         } catch (err) {
           console.error("Error marking received message as read:", err);
@@ -209,13 +209,13 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       setMessages((prevMessages) =>
         prevMessages.map((m) => {
           if (data.messageId) {
-            if (m._id === data.messageId) {
+            if (m.id === data.messageId) {
               const readSet = new Set(m.readBy || []);
               readSet.add(data.readerId);
               return { ...m, readBy: Array.from(readSet) };
             }
           } else {
-            if (m.sender._id === user._id) {
+            if (m.sender.id === user.id) {
               const readSet = new Set(m.readBy || []);
               readSet.add(data.readerId);
               return { ...m, readBy: Array.from(readSet) };

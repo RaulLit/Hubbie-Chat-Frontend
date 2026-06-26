@@ -52,31 +52,30 @@ export const UpdateGroupModel = ({
   const [leaveGroupLoading, setLeaveGroupLoading] = useState(false);
 
   const handleRemove = async (selected_user) => {
-    if (selected_user._id === user._id) {
-      // Alert
+    if (selected_user.id === user.id) {
       setAlert({
-        message: "Hey! That's you!",
+        message: "You cannot remove yourself from here. Use leave group",
         alert: {
           variant: "filled",
-          severity: "info",
+          severity: "warning",
         },
         snackbar: {
-          autoHideDuration: 3000,
+          autoHideDuration: 6000,
         },
       });
       showAlert();
       return;
     }
-    if (selectedChat.groupAdmin._id !== user._id) {
-      // Alert
+
+    if (selectedChat.groupAdmin.id !== user.id) {
       setAlert({
-        message: "Only admin can remove users",
+        message: "Only group admin can remove members",
         alert: {
           variant: "filled",
-          severity: "info",
+          severity: "warning",
         },
         snackbar: {
-          autoHideDuration: 3000,
+          autoHideDuration: 6000,
         },
       });
       showAlert();
@@ -92,7 +91,7 @@ export const UpdateGroupModel = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify({ chatId: selectedChat._id, userId: selected_user._id }),
+          body: JSON.stringify({ chatId: selectedChat.id, userId: selected_user.id }),
           credentials: "include",
         }
       );
@@ -133,7 +132,7 @@ export const UpdateGroupModel = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify({ chatId: selectedChat._id, chatName: groupName }),
+          body: JSON.stringify({ chatId: selectedChat.id, chatName: groupName }),
           credentials: "include",
         }
       );
@@ -188,31 +187,30 @@ export const UpdateGroupModel = ({
   };
 
   const handleAddUser = async (new_user) => {
-    if (selectedChat.users.find((u) => u._id === new_user._id)) {
-      // Alert
+    // Check if user already exists
+    if (selectedChat.users.find((u) => u.id === new_user.id)) {
       setAlert({
-        message: "User already added",
+        message: "User already in group",
         alert: {
           variant: "filled",
-          severity: "info",
+          severity: "warning",
         },
         snackbar: {
-          autoHideDuration: 3000,
+          autoHideDuration: 6000,
         },
       });
       showAlert();
       return;
     }
-    if (selectedChat.groupAdmin._id !== user._id) {
-      // Alert
+    if (selectedChat.groupAdmin.id !== user.id) {
       setAlert({
-        message: "Only admin can add users",
+        message: "Only group admin can add members",
         alert: {
           variant: "filled",
-          severity: "info",
+          severity: "warning",
         },
         snackbar: {
-          autoHideDuration: 3000,
+          autoHideDuration: 6000,
         },
       });
       showAlert();
@@ -228,7 +226,7 @@ export const UpdateGroupModel = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify({ chatId: selectedChat._id, userId: new_user._id }),
+          body: JSON.stringify({ chatId: selectedChat.id, userId: new_user.id }),
           credentials: "include",
         }
       );
@@ -268,7 +266,7 @@ export const UpdateGroupModel = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify({ chatId: selectedChat._id, userId: user._id }),
+          body: JSON.stringify({ chatId: selectedChat.id, userId: user.id }),
           credentials: "include",
         }
       );
@@ -309,10 +307,10 @@ export const UpdateGroupModel = ({
           <Divider sx={{ m: "1rem 0" }} />
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Stack direction="row" spacing={1} position="relative" flexWrap={"wrap"}>
-              {!removeUserLoading &&
+              {selectedChat &&
                 selectedChat.users.map((user) => (
                   <Chip
-                    key={user._id}
+                    key={user.id}
                     label={user.name}
                     variant="outlined"
                     color="primary"
@@ -375,7 +373,7 @@ export const UpdateGroupModel = ({
               <Stack sx={{ width: "100%", alignItems: "center", margin: 1 }}>
                 {searchResults.slice(0, 4).map((user) => (
                   <UserCard
-                    key={user._id}
+                    key={user.id}
                     user={user}
                     handleFunc={() => handleAddUser(user)}
                   />
