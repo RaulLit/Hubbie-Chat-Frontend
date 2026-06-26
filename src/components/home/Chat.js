@@ -30,9 +30,9 @@ export const Chat = ({ messages }) => {
             let isRead = false;
             let isDelivered = false; // Double grey checks for group chats read by at least one member
 
-            if (m.sender._id === user._id) {
+            if (m.sender.id === user.id) {
               const readByOthers = (m.readBy || []).filter(
-                (uid) => (uid._id || uid).toString() !== user._id.toString()
+                (uid) => (uid.id || uid).toString() !== user.id.toString()
               );
               
               if (selectedChat?.isGroupChat) {
@@ -50,7 +50,7 @@ export const Chat = ({ messages }) => {
             }
 
             return (
-              <Box key={m._id || `msg-${i}`} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+              <Box key={m.id || `msg-${i}`} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
                 {showDatePill && (
                   <Box sx={{ display: "flex", justifyContent: "center", margin: "1rem 0", width: "100%" }}>
                     <Box
@@ -74,13 +74,13 @@ export const Chat = ({ messages }) => {
                     display: "flex",
                     alignItems: "center",
                     width: "100%",
-                    justifyContent: m.sender._id === user._id ? "flex-end" : "flex-start",
+                    justifyContent: m.sender.id === user.id ? "flex-end" : "flex-start",
                     margin: "0.15rem 0",
                   }}
                 >
-                  {m.sender._id !== user._id &&
-                    (isSameSender(messages, m, i, user._id) ||
-                      isLastMessage(messages, i, user._id)) && (
+                  {m.sender.id !== user.id &&
+                    (isSameSender(messages, m, i, user.id) ||
+                      isLastMessage(messages, i, user.id)) && (
                       <Tooltip title={m.sender.name} placement="bottom-start" arrow>
                         <Avatar
                           sx={{
@@ -99,21 +99,21 @@ export const Chat = ({ messages }) => {
                   <Box
                     sx={{
                       background:
-                        m.sender._id === user._id
+                        m.sender.id === user.id
                           ? (t) => t.palette.primary.main
                           : (t) => t.palette.secondary.main,
                       color:
-                        m.sender._id === user._id
+                        m.sender.id === user.id
                           ? (t) => t.palette.primary.contrastText
                           : (t) => t.palette.secondary.contrastText,
                       borderRadius: "1rem",
                       padding: "0.5rem 1rem",
                       maxWidth: "70%",
                       marginLeft:
-                        m.sender._id === user._id
+                        m.sender.id === user.id
                           ? "auto"
-                          : isSameSender(messages, m, i, user._id) ||
-                            isLastMessage(messages, i, user._id)
+                          : isSameSender(messages, m, i, user.id) ||
+                            isLastMessage(messages, i, user.id)
                           ? 0
                           : "2.25rem",
                       boxShadow: 1,
@@ -147,7 +147,7 @@ export const Chat = ({ messages }) => {
                         })}
                       </Typography>
                       
-                      {m.sender._id === user._id && (
+                      {m.sender.id === user.id && (
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           {m.status === "pending" ? (
                             <AccessTimeIcon sx={{ fontSize: "0.75rem", opacity: 0.7 }} />

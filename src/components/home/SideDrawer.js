@@ -86,7 +86,7 @@ export const SideDrawer = () => {
       const result = await data.json();
       if (!data.ok) throw Error(result.error || result.message || "Error Fetching the chat");
       
-      if (!chats.find((c) => c._id === result._id)) setChats([result, ...chats]);
+      if (!chats.find((c) => c.id === result.id)) setChats([result, ...chats]);
       setSelectedChat(result);
       // setLoadingChat(false);
       handleDrawerClose();
@@ -195,7 +195,7 @@ export const SideDrawer = () => {
             )}
             {notification.map((msg) => (
               <MenuItem
-                key={msg._id}
+                key={msg.id}
                 onClick={() => {
                   setSelectedChat(msg.chat);
                   setNotification(notification.filter((n) => n !== msg));
@@ -281,7 +281,7 @@ export const SideDrawer = () => {
             width="100%"
           >
             {users?.map((u) => (
-              <UserCard key={u._id} user={u} handleFunc={() => accessChat(u._id)} />
+              <UserCard key={u.id} user={u} handleFunc={() => accessChat(u.id)} />
             ))}
           </Box>
         )}

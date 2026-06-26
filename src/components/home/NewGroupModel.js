@@ -86,7 +86,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
   };
 
   const handleDelete = (del_user) => {
-    setGroupUsers(groupUsers.filter((sel) => sel._id !== del_user._id));
+    setGroupUsers(groupUsers.filter((sel) => sel.id !== del_user.id));
   };
 
   const handleSubmit = async () => {
@@ -107,7 +107,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
     }
     const requestData = {
       name: groupName,
-      users: JSON.stringify(groupUsers.map((u) => u._id)),
+      users: JSON.stringify(groupUsers.map((u) => u.id)),
     };
     try {
       const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/chat/group`, {
@@ -191,7 +191,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
             <Stack direction="row" spacing={1}>
               {groupUsers.map((user) => (
                 <Chip
-                  key={user._id}
+                  key={user.id}
                   label={user.name}
                   variant="outlined"
                   color="primary"
@@ -207,7 +207,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
               <Stack sx={{ width: "100%", alignItems: "center", margin: 1 }}>
                 {searchResults.slice(0, 4).map((user) => (
                   <UserCard
-                    key={user._id}
+                    key={user.id}
                     user={user}
                     handleFunc={() => handleGroup(user)}
                   />

@@ -94,7 +94,7 @@ export const MyChats = ({ fetchAgain }) => {
           <Stack spacing={1}>
             {chats.map((c) => (
               <Box
-                key={c._id}
+                key={c.id}
                 onClick={() => setSelectedChat(c)}
                 sx={{
                   cursor: "pointer",
@@ -132,7 +132,7 @@ export const MyChats = ({ fetchAgain }) => {
                         textAlign: "left",
                       }}
                     >
-                      {c.latestMessage.sender._id === user._id ? "You: " : c.isGroupChat ? `${c.latestMessage.sender.name}: ` : ""}
+                      {c.latestMessage.sender.id === user.id ? "You: " : c.isGroupChat ? `${c.latestMessage.sender.name}: ` : ""}
                       {c.latestMessage.content}
                     </Typography>
                   )}
