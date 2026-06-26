@@ -8,19 +8,27 @@ export const useSearch = () => {
 
   const SearchUser = async (search) => {
     setIsLoading(true);
+    setError(null);
     try {
       const fetched_users = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/api/user/allUser?search=${search}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
+          credentials: "include",
         }
       );
-      const users = await fetched_users.json();
+      const resData = await fetched_users.json();
       setIsLoading(false);
-      return users;
+      
+      if (!fetched_users.ok) {
+        throw new Error(resData.message || resData.error || "Failed to search user");
+      }
+      
+      return Array.isArray(resData) ? resData : (resData.data || []);
     } catch (err) {
       setIsLoading(false);
       setError(err.message);
+      return [];
     }
   };
 

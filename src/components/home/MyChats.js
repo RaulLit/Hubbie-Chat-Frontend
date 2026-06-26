@@ -4,14 +4,14 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { ChatContext } from "../../contexts/ChatContext";
 import { useAlert } from "../../hooks/useAlert";
 import { ChatLoading } from "./ChatLoading";
-import { getSender } from "../../util/Utilities";
+import { getSender, formatChatTime } from "../../util/Utilities";
 import { NewGroupModel } from "./NewGroupModel";
-import { useLogout } from "../../hooks/useLogout";
+import { useFetch } from "../../hooks/useFetch";
 
 export const MyChats = ({ fetchAgain }) => {
   const { user } = useContext(AuthContext);
-  const { logout } = useLogout();
-  const { setAlert, alertElem, showAlert } = useAlert();
+  const { request } = useFetch();
+  const { setAlert, alertElem } = useAlert();
   const { selectedChat, setSelectedChat, chats, setChats } = useContext(ChatContext);
 
   // NewGroup Model
@@ -22,28 +22,22 @@ export const MyChats = ({ fetchAgain }) => {
 
   const getChats = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/chat/`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      const json = await response.json();
-      if (json.status && json.status === "error" && json.message === "Auth token expired")
-        logout();
-      else setChats(json);
-      // local storage
-      localStorage.setItem("chats", JSON.stringify(json));
+      const json = await request("/api/chat/");
+      if (Array.isArray(json)) {
+        setChats(json);
+        localStorage.setItem("chats", JSON.stringify(json));
+      } else if (json && json.status === "success" && Array.isArray(json.data)) {
+        setChats(json.data);
+        localStorage.setItem("chats", JSON.stringify(json.data));
+      } else if (json && (json.error || json.message)) {
+        throw new Error(json.error || json.message);
+      }
     } catch (err) {
       // Alert
       setAlert({
         message: err.message,
-        alert: {
-          variant: "filled",
-          severity: "error",
-        },
-        snackbar: {
-          autoHideDuration: 6000,
-        },
+        severity: "error",
       });
-      showAlert();
     }
   };
 
@@ -60,7 +54,7 @@ export const MyChats = ({ fetchAgain }) => {
         alignItems: "center",
         p: 1.5,
         background: (t) => t.palette.background.paper,
-        width: { xs: "100%", md: "40%" },
+        width: { xs: "100%", md: "30%" },
         borderRadius: "1rem",
       }}
     >
@@ -86,14 +80,14 @@ export const MyChats = ({ fetchAgain }) => {
       </Box>
       <Box
         sx={{
-          diplay: "flex",
+          display: "flex",
           flexDirection: "column",
           padding: 1,
           background: (t) => t.palette.background.default,
           width: "100%",
           height: "100%",
           borderRadius: "1rem",
-          overflowY: "hidden",
+          overflowY: "auto",
         }}
       >
         {chats && chats.length > 0 ? (
@@ -115,9 +109,34 @@ export const MyChats = ({ fetchAgain }) => {
                   },
                 }}
               >
-                <Typography>
-                  {!c.isGroupChat ? getSender(user, c.users) : c.chatName}
-                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography sx={{ fontWeight: "bold", fontSize: "0.95rem" }}>
+                      {!c.isGroupChat ? getSender(user, c.users) : c.chatName}
+                    </Typography>
+                    {c.latestMessage && (
+                      <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                        {formatChatTime(c.latestMessage.createdAt)}
+                      </Typography>
+                    )}
+                  </Box>
+                  {c.latestMessage && (
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        color: "text.secondary",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        marginTop: 0.5,
+                        textAlign: "left",
+                      }}
+                    >
+                      {c.latestMessage.sender._id === user._id ? "You: " : c.isGroupChat ? `${c.latestMessage.sender.name}: ` : ""}
+                      {c.latestMessage.content}
+                    </Typography>
+                  )}
+                </Box>
               </Box>
             ))}
           </Stack>

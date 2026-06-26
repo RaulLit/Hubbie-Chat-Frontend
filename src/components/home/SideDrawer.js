@@ -81,10 +81,13 @@ export const SideDrawer = () => {
           Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({ userId }),
+        credentials: "include",
       });
-
-      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
-      setSelectedChat(data);
+      const result = await data.json();
+      if (!data.ok) throw Error(result.error || result.message || "Error Fetching the chat");
+      
+      if (!chats.find((c) => c._id === result._id)) setChats([result, ...chats]);
+      setSelectedChat(result);
       // setLoadingChat(false);
       handleDrawerClose();
     } catch (error) {

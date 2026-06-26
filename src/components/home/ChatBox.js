@@ -51,25 +51,38 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       setMessageLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/api/message/${selectedChat._id}`,
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+          credentials: "include",
+        }
       );
       const data = await response.json();
-      // Check Response
       if (!response.ok) throw Error(data.error);
       setMessages(data);
       setMessageLoading(false);
       socket.emit("join_chat", selectedChat._id);
+
+      // Update read status in database
+      await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/read`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ chatId: selectedChat._id }),
+        credentials: "include",
+      });
+
+      // Notify others in room
+      socket.emit("read_receipt", {
+        chatId: selectedChat._id,
+        readerId: user._id,
+      });
     } catch (err) {
-      // Alert
       setAlert({
         message: err.message,
-        alert: {
-          variant: "filled",
-          severity: "error",
-        },
-        snackbar: {
-          autoHideDuration: 3000,
-        },
+        alert: { variant: "filled", severity: "error" },
+        snackbar: { autoHideDuration: 3000 },
       });
       showAlert();
       setMessageLoading(false);
@@ -80,7 +93,6 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
 
-    // typing indicator
     if (!socketConnected) return;
     if (!typing) {
       setTyping(true);
@@ -97,35 +109,53 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+    const messageContent = newMessage;
+    setNewMessage("");
+
+    // Generate optimistic tempId
+    const tempId = `temp-${Date.now()}`;
+    const tempMsg = {
+      _id: tempId,
+      sender: { _id: user._id, name: user.name },
+      content: messageContent,
+      chat: selectedChat._id,
+      createdAt: new Date().toISOString(),
+      readBy: [user._id],
+      status: "pending",
+    };
+
+    // Optimistically add message
+    setMessages((prev) => [...prev, tempMsg]);
+
     try {
       socket.emit("typing_stopped", selectedChat._id);
-      const messageData = newMessage;
-      setNewMessage("");
       const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ chatId: selectedChat._id, content: messageData }),
+        body: JSON.stringify({ chatId: selectedChat._id, content: messageContent }),
+        credentials: "include",
       });
       const data = await response.json();
-      // Response Check
       if (!response.ok) throw Error(data.error);
-      // socket
+
+      // Update temporary message with official database message (defaults to status: "sent")
+      setMessages((prev) =>
+        prev.map((m) => (m._id === tempId ? { ...data, status: "sent" } : m))
+      );
+
       socket.emit("new_msg", data);
-      setMessages([...messages, data]);
     } catch (err) {
-      // Alert
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter((m) => m._id !== tempId));
+
       setAlert({
         message: err.message,
-        alert: {
-          variant: "filled",
-          severity: "error",
-        },
-        snackbar: {
-          autoHideDuration: 3000,
-        },
+        alert: { variant: "filled", severity: "error" },
+        snackbar: { autoHideDuration: 3000 },
       });
       showAlert();
     }
@@ -135,27 +165,84 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     socket = io(process.env.REACT_APP_SERVER_URL);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    socket.on("msg_rxd", (rx_msg) => {
+    if (!socketConnected) return;
+
+    const handleMsgRxd = async (rx_msg) => {
       if (!compareSelectedChat || compareSelectedChat._id !== rx_msg.chat._id) {
-        // notification
-        if (!notification.includes(rx_msg)) {
+        if (!notification.some((n) => n._id === rx_msg._id)) {
           setNotification([rx_msg, ...notification]);
         }
       } else {
-        setMessages([...messages, rx_msg]);
-        setFetchAgain(!fetchAgain);
+        // Mark as read in DB immediately since chat is active
+        try {
+          const updatedMsg = { ...rx_msg, readBy: [...(rx_msg.readBy || []), user._id] };
+          setMessages((prev) => [...prev, updatedMsg]);
+
+          await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/read`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({ chatId: rx_msg.chat._id }),
+            credentials: "include",
+          });
+
+          // Notify sender
+          socket.emit("read_receipt", {
+            chatId: rx_msg.chat._id,
+            messageId: rx_msg._id,
+            readerId: user._id,
+          });
+        } catch (err) {
+          console.error("Error marking received message as read:", err);
+        }
+        setFetchAgain((prev) => !prev);
       }
-    });
+    };
+
+    const handleMessageRead = (data) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((m) => {
+          if (data.messageId) {
+            if (m._id === data.messageId) {
+              const readSet = new Set(m.readBy || []);
+              readSet.add(data.readerId);
+              return { ...m, readBy: Array.from(readSet) };
+            }
+          } else {
+            if (m.sender._id === user._id) {
+              const readSet = new Set(m.readBy || []);
+              readSet.add(data.readerId);
+              return { ...m, readBy: Array.from(readSet) };
+            }
+          }
+          return m;
+        })
+      );
+    };
+
+    socket.on("msg_rxd", handleMsgRxd);
+    socket.on("message_read", handleMessageRead);
     socket.on("typing", () => setIsTyping(true));
     socket.on("typing_stopped", () => setIsTyping(false));
-  });
+
+    return () => {
+      socket.off("msg_rxd", handleMsgRxd);
+      socket.off("message_read", handleMessageRead);
+      socket.off("typing");
+      socket.off("typing_stopped");
+    };
+  }, [socketConnected, notification, messages, user, fetchAgain, setFetchAgain, setNotification]);
 
   useEffect(() => {
     fetchMessages();
     compareSelectedChat = selectedChat;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChat]);
 
   return (
@@ -166,7 +253,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
         alignItems: "center",
         p: 1.5,
         background: (t) => t.palette.background.paper,
-        width: { xs: "100%", md: "60%" },
+        width: { xs: "100%", md: "70%" },
         borderRadius: "1rem",
         marginLeft: { xs: 0, md: 0.5 },
       }}

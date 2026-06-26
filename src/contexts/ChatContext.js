@@ -9,7 +9,11 @@ export const ChatContextProvider = ({ children }) => {
 
   useEffect(() => {
     const localChats = JSON.parse(localStorage.getItem("chats"));
-    if (localChats) setChats(localChats);
+    if (Array.isArray(localChats)) {
+      setChats(localChats);
+    } else if (localChats) {
+      localStorage.removeItem("chats");
+    }
   }, []);
 
   return (

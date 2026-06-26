@@ -117,6 +117,7 @@ export const NewGroupModel = ({ open, handleOpen, handleClose, children }) => {
           Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify(requestData),
+        credentials: "include",
       });
 
       if (!response.ok) {
