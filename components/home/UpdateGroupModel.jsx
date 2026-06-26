@@ -84,7 +84,7 @@ export const UpdateGroupModel = ({
     try {
       setRemoveUserLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/chat/group/remove`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/group/remove`,
         {
           method: "PUT",
           headers: {
@@ -125,7 +125,7 @@ export const UpdateGroupModel = ({
     try {
       setRenameLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/chat/group/update`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/group/update`,
         {
           method: "PUT",
           headers: {
@@ -219,7 +219,7 @@ export const UpdateGroupModel = ({
     try {
       setAddUserLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/chat/group/add`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/group/add`,
         {
           method: "PUT",
           headers: {
@@ -259,7 +259,7 @@ export const UpdateGroupModel = ({
     try {
       setLeaveGroupLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/chat/group/remove`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/group/remove`,
         {
           method: "PUT",
           headers: {

@@ -50,7 +50,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     try {
       setMessageLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/api/message/${selectedChat.id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/${selectedChat.id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
           credentials: "include",
@@ -63,7 +63,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       socket.emit("join_chat", selectedChat.id);
 
       // Update read status in database
-      await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/read`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
 
     try {
       socket.emit("typing_stopped", selectedChat.id);
-      const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -162,7 +162,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io(process.env.REACT_APP_SERVER_URL);
+    socket = io(process.env.NEXT_PUBLIC_SERVER_URL);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,7 +182,7 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
           const updatedMsg = { ...rx_msg, readBy: [...(rx_msg.readBy || []), user.id] };
           setMessages((prev) => [...prev, updatedMsg]);
 
-          await fetch(`${process.env.REACT_APP_SERVER_URL}/api/message/read`, {
+          await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/read`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -256,6 +256,14 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
         width: { xs: "100%", md: "70%" },
         borderRadius: "1rem",
         marginLeft: { xs: 0, md: 0.5 },
+        boxShadow: (t) =>
+          t.palette.mode === "light"
+            ? "0 4px 20px -2px rgba(0,0,0,0.05), 0 2px 8px -1px rgba(0,0,0,0.05)"
+            : "none",
+        border: (t) =>
+          t.palette.mode === "light"
+            ? "1px solid rgba(0,0,0,0.04)"
+            : "1px solid rgba(255,255,255,0.05)",
       }}
     >
       {selectedChat ? (

@@ -11,7 +11,7 @@ export const useFetch = () => {
   const { setAlert } = useAlert();
 
   const client = axios.create({
-    baseURL: process.env.REACT_APP_SERVER_URL || "http://localhost:4000",
+    baseURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000",
     withCredentials: true,
     headers: { "Content-Type": "application/json" },
   });
@@ -66,10 +66,11 @@ export const useFetch = () => {
       setData(result.data || null);
       return result;
     } catch (err) {
-      setError(err.response.data.message || err.message);
+      const errMsg = err.response?.data?.message || err.message || "Something went wrong";
+      setError(errMsg);
       setData(null);
       console.log("inside useFetch", err);
-      return err.response.data;
+      return err.response ? err.response.data : { status: "error", message: errMsg };
     } finally {
       setLoading(false);
     }

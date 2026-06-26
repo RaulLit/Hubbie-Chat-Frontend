@@ -1,10 +1,10 @@
 import { useAuthContext } from "./useAuthContext";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useFetch } from "./useFetch";
 
 export const useLogin = () => {
   const { dispatch } = useAuthContext();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { request, error, loading } = useFetch();
 
   const login = async (email, password) => {
@@ -22,7 +22,7 @@ export const useLogin = () => {
 
         // update the auth context
         dispatch({ type: "LOGIN", payload: result.data });
-        navigate("/home");
+        router.push("/home");
       }
     } catch (err) {
       console.log(err);

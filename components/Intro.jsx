@@ -1,5 +1,5 @@
 import { Box, Button, Typography, Container, Grid, Card, CardContent, Avatar, Switch, Stack } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { ThemeContext } from "../contexts/ThemeContext";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -11,7 +11,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 export const Intro = () => {
   const { toggleTheme, mode } = useContext(ThemeContext);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <Box
@@ -76,7 +76,7 @@ export const Intro = () => {
               <Button
                 variant={mode === "dark" ? "outlined" : "contained"}
                 size="large"
-                onClick={() => navigate("/auth")}
+                onClick={() => router.push("/auth")}
                 sx={{
                   paddingX: 5,
                   paddingY: 1.5,
